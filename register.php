@@ -43,8 +43,14 @@ try {
         if(count($id) == 1){
             $_SESSION['id'] = $id;
         }
+        header("Location: map.html");
+        die();
+    } else {
+        header("Location: error.html");
+        die();
     }
 } catch(PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+    header("Location: error.html");
+    die();
 }
 ?>

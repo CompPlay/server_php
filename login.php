@@ -27,7 +27,8 @@ try {
             $_SESSION['username'] = $login_username;
             $_SESSION['name'] = $results[0]['name'];
             $_SESSION['id'] = $results[0]['id'];
-            echo "Successfully logged in.";
+            header("Location: map.html");
+            die();
         } else {
             echo "Incorrect username or password.";
         }
@@ -35,6 +36,7 @@ try {
         echo "Incorrect username or password.";
     }
 } catch(PDOException $e) {
-    echo "Connection failed: " . $e->getMessage();
+    header("Location: error.html");
+    die();
 }
 ?>
