@@ -1,0 +1,95 @@
+/* 
+* User styled css for StuWork Landing Page 
+* Sourced from: StartBootstrap and Bootstrap
+* Built Upon and Edited by: Brendan Hart
+*/
+
+body {
+  padding: 70px; 
+}
+
+#header h1 {
+  font-size: 44px;
+  color: #cd5c5c;
+}
+
+#header .btn {
+    padding: 14px 24px;
+    font-size: 40px;
+    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    border: 2px solid #cd5c5c;
+    color: #cd5c5c;
+}
+
+#header .btn.outline {
+    background: none;
+    padding: 12px 22px;
+}
+
+#header .btn.outline:active, .btn-primary.outline.active {
+    border-color: #cd5c5c;
+    color: #cd5c5c;
+    box-shadow: 0 5px 15px rgba(0,0,0,0);
+}
+
+#header .btn.outline:hover, .btn.outline:focus, .btn.outline:active, .btn.outline.active, .open > .dropdown-toggle.btn {
+    color: #cd5c5c;
+    border-color: #cd5c5c;
+}
+
+#info .btn {
+    padding: 14px 24px;
+    font-size: 40px;
+    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    border: 2px solid #cd5c5c;
+    color: #cd5c5c;
+}
+
+#info .btn.outline {
+    background: none;
+    padding: 12px 22px;
+}
+
+#info .btn.outline:active, .btn-primary.outline.active {
+    border-color: #cd5c5c;
+    color: #cd5c5c;
+    box-shadow: 0 5px 15px rgba(0,0,0,0);
+}
+
+#info .btn.outline:hover, .btn.outline:focus, .btn.outline:active, .btn.outline.active, .open > .dropdown-toggle.btn {
+    color: #cd5c5c;
+    border-color: #cd5c5c;
+}
+
+#info p {
+  font-size: 18px;
+}
+
+footer {
+    padding: 25px 0;
+    background-color: #f8f8f8;
+    width: 100%;
+    max-width: 1900qpx;
+}
+
+footer ul {
+    text-align: center;
+}
+
+footer .container {
+  width: 100%;
+  max-width: 1900px;
+}
+
+footer .container .row .copy p {
+    text-align: center;
+}
+
+p.copyright {
+    margin: 15px 0 0;
+    text-align: center;
+}

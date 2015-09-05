@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="Come Play Competitive Games: Find events in your area based on your likes and interests">
+    <meta name="author" content="Brendan Hart">
+
+    <!-- Navbar CSS -->
+    <link href = "css/navbar.css" rel = "stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="css/landing-page.css" rel="stylesheet">
+
+    <!-- Button CSS -->
+    <link href = "css/bootstrap-social.css" rel = "stylesheet">
+
+  	<link rel="stylesheet" type="text/css" href="css/complay.css" />
+  	<!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  	<script src="https://maps.googleapis.com/maps/api/js"></script>
+  	<script src="complay.js"></script>
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-default  topnav" role="navigation">
+        <div class="container topnav">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand topnav" href="#"><strong>ComPlay</strong></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#contact">Sign Up</a>
+                    </li>
+                </ul>
+                <form class = "navbar-form navbar-right">
+                    <div class="form-group">
+                        <label class="sr-only" for="exampleInputEmail3">Email address</label>
+                        <input type="email" class="form-control" id="exampleInputEmail3" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label class="sr-only" for="exampleInputPassword3">Password</label>
+                        <input type="password" class="form-control" id="exampleInputPassword3" placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn btn-default">Login</button>
+                </form>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+
+    <!-- Header -->
+    <div class="intro-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="intro-message">
+                        <h1>ComPlay</h1>
+                        <h3>Come Play: Connecting people through competition </h3>
+                        <hr class="intro-divider">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.container -->
+    </div>
+    <!-- /.intro-header -->
+
+        <div class="content-section-a">
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5 col-sm-6">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">What is ComPlay</h2>
+                    <p class="lead">ComPlay allows people in similar neighboorhoods to join an event of their liking and play with other people in your area. Whether it is basketball, Halo, or Blackjack, ComPlay has you covered. </p>
+                </div>
+                <div class="col-lg-5 col-lg-offset-2 col-sm-6">
+                    <img class="img-responsive" src="http://www.cartamundi.com/en/system/files/images/temp/PlayingCards_People.jpg" alt="">
+                </div>
+            </div>
+        </div>
+        <!-- /.container -->
+    </div>
+    <!-- /.content-section-a -->
+
+    <div class="content-section-b">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <img class="img-responsive" src="http://www.marcuscenter.org/images/show-images/the-sandlot/the-sandlot-peck-flicks-show-detail.jpg" alt="">
+                </div>
+                <div class="col-lg-8">
+                    <hr class="section-heading-spacer">
+                    <div class="clearfix"></div>
+                    <h2 class="section-heading">ComPlay's Mission</h2>
+                    <p class="lead">ComPlay hopes to unite people from similar neighborhoods through the power of competitive games.</p>
+                </div>
+            </div>
+        </div>
+        <!-- /.container -->
+    </div>
+    <!-- /.content-section-b -->
+
+    <div class = "information-fill">
+        <div class = "container">
+            <div class = "row">
+                <div class = "col-lg-12">
+                    <h2 class = "section-heading"> Sign Up for ComPlay</h2>
+                    <hr class="intro-divider">
+                </div>
+            </div>
+            <div class = "row">
+                <form class="form-horizontal" role = "form" method="post" action="register.php">
+                   <div class="form-group">
+                        <div class = "col-lg-4 col-lg-offset-4">
+                            <div >
+                                <input class="form-control" name="username" placeholder="Username" required>
+                                <span></span>
+                            </div>
+                        </div>
+                   </div>  
+                   <div class="form-group">
+                        <div class = "col-lg-4 col-lg-offset-4">
+                            <div >
+                                <input class="form-control" type="password" name="password" placeholder="Password" required>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>  
+                   <div class="form-group">
+                        <div class = "col-lg-4 col-lg-offset-4">
+                            <div >
+                                <input class="form-control" name="name" placeholder="Name" required>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>  
+                    <div class="form-group">
+                        <div class = "col-lg-4 col-lg-offset-4">
+                            <div >
+                                <input class="form-control" name="email" placeholder="Email" required>
+                                <span></span>                                                               
+                            </div>
+                        </div>
+                    </div>  
+                    <div class="form-group" >
+                        <div class = "col-lg-4 col-lg-offset-4">
+                            <div >
+                                <input class="form-control" name="phone" placeholder="Phone" required>
+                                <span></span>                           
+                            </div>
+                        </div>
+                    </div>  
+                    <div class="form-group">        
+                        <div class="col-lg-2 col-lg-offset-5">
+                            <button type="submit" value ="Submit" class="btn btn-default">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+          </div>
+        </div>
+
+    <footer>
+        <div class="container-fluid">
+            <div class = "row">
+                <div class = "col-lg-12">
+                    <p> ComPlay does not employ, recommend, or endorse any person nor is it responsible for the conduct of any person. ComPlay provides information and tools to help connect people and make informed decisions. However, each individual is solely responsible for selecting an appropriate competitive friend for themselves and for complying with all applicable laws and labor laws in connection with any games they establish. </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="../../dist/js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../../assets/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
+</html>
