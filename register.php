@@ -21,17 +21,18 @@ try {
     $register_user = $conn->prepare("SELECT * FROM users WHERE username=:username OR email=:email");
     $register_user->bindParam(":username", $login_username);
     $register_user->bindParam(":email", $login_email);
-    $get_hash->execute();
-    $results = $get_hash->setFetchMode(PDO::FETCH_ASSOC);
-    $results = $get_hash->fetchAll();
-    if(count($results) == 0) {
-        $add_user = $conn->prepare("INSERT INTO users VALUES (LEFT(UUID(), 10), :username, :passwd, CURRENT_TIMESTAMP(), :realname, NULL, :email, :phone)");
+    $register_user->execute();
+    $results = $register_user->setFetchMode(PDO::FETCH_ASSOC);
+    $results = $register_user->fetchAll();
+    if(count($results) === 0) {
+        $add_user = $conn->prepare("INSERT INTO users VALUES (LEFT(UUID(), 10), :username, :passwd, CURRENT_TIMESTAMP(), :realname, NULL, :email, :phone, NULL)");
         $add_user->bindParam(":username", $login_username);
         $add_user->bindParam(":passwd", password_hash($login_password, PASSWORD_DEFAULT));
         $add_user->bindParam(":realname", $login_name);
         $add_user->bindParam(":email", $login_email);
         $add_user->bindParam(":phone", $login_phone);
         $add_user->execute();
+        echo "inserted";
         $_SESSION['loggedin'] = true;
         $_SESSION['username'] = $login_username;
         $_SESSION['name'] = $login_name;
@@ -41,7 +42,7 @@ try {
         $get_id->setFetchMode(PDO::FETCH_ASSOC);
         $id = $get_id->fetchAll();
         if(count($id) == 1){
-            $_SESSION['id'] = $id;
+            $_SESSION['id'] = $id[0]['userid'];
         }
         header("Location: map.html");
         die();
