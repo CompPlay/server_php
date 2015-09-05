@@ -26,7 +26,7 @@ try {
             $_SESSION['loggedin'] = true;
             $_SESSION['username'] = $login_username;
             $_SESSION['name'] = $results[0]['name'];
-            $_SESSION['id'] = $results[0]['id'];
+            $_SESSION['id'] = $results[0]['userid'];
             header("Location: map.html");
             die();
         } else {
