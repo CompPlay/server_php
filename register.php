@@ -39,7 +39,7 @@ try {
         $get_id->bindParam(":username", $login_username);
         $get_id->execute();
         $get_id->setFetchMode(PDO::FETCH_ASSOC);
-        $id == $get_id->fetchAll();
+        $id = $get_id->fetchAll();
         if(count($id) == 1){
             $_SESSION['id'] = $id;
         }
