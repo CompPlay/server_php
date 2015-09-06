@@ -81,7 +81,7 @@ function initMap() {
     zoom: 6
   });
   map=kekmap;
-  var infoWindow = new google.maps.InfoWindow({map: map});
+  //var infoWindow = new google.maps.InfoWindow({map: map});
   setInterval(asyncGetLocationData, 3000);
   google.maps.event.addListener(map, "rightclick", function(event) {
       latitude_dropped_marker = event.latLng.lat();
@@ -101,11 +101,11 @@ function initMap() {
       map.setCenter(pos);
       asyncGetLocationData();
     }, function() {
-      handleLocationError(true, infoWindow, map.getCenter());
+      handleLocationError(true, new google.maps.InfoWindow({map: map}), map.getCenter());
     });
   } else {
     // Browser doesn't support Geolocation
-    handleLocationError(false, infoWindow, map.getCenter());
+    handleLocationError(false, new google.maps.InfoWindow({map: map}), map.getCenter());
   }
 }
 
