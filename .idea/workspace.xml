@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c8c5c104-08d1-4106-814e-2f5d7786d513" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/map.html" afterPath="$PROJECT_DIR$/map.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="server_php.iws" />
@@ -40,7 +39,7 @@
       <file leaf-file-name="map.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/map.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7111111">
+            <state vertical-scroll-proportion="1.2854701">
               <caret line="107" column="69" selection-start-line="107" selection-start-column="69" selection-end-line="107" selection-end-column="69" />
               <folding>
                 <element signature="n#style#0;n#button#0;n#form#0;n#div#1;n#div#0;n#nav#0;n#body#0;n#html#0;n#!!top" expanded="true" />
@@ -477,7 +476,13 @@
       <option name="project" value="LOCAL" />
       <updated>1441514396888</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="fixed infobox showing up weirdly">
+      <created>1441514503970</created>
+      <option name="number" value="00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1441514503970</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -528,7 +533,8 @@
     <MESSAGE value="forgot string concat operator" />
     <MESSAGE value="logout added" />
     <MESSAGE value="added creating pins w/ right click" />
-    <option name="LAST_COMMIT_MESSAGE" value="added creating pins w/ right click" />
+    <MESSAGE value="fixed infobox showing up weirdly" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed infobox showing up weirdly" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1026,7 +1032,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/map.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7111111">
+        <state vertical-scroll-proportion="1.2854701">
           <caret line="107" column="69" selection-start-line="107" selection-start-column="69" selection-end-line="107" selection-end-column="69" />
           <folding>
             <element signature="n#style#0;n#button#0;n#form#0;n#div#1;n#div#0;n#nav#0;n#body#0;n#html#0;n#!!top" expanded="true" />
