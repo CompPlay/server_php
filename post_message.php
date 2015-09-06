@@ -19,6 +19,24 @@ try{
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $messagetext = $_POST['messagetext'];
     $groupid = $_POST['groupid'];
+    $postsettings = $conn->prepare("SELECT posters, ownerid FROM groups WHERE groupid = :groupid");
+    $postsettings->bindParam(":groupid", $groupid);
+    $postsettings->execute();
+    $postsettings->setFetchMode(PDO::FETCH_ASSOC);
+    $results = $postsettings->fetchAll();
+    $posters = $results[0]['posters'];
+    $ownerid = $results[0]['ownerid'];
+    $checkifmember = $conn->prepare("SELECT COUNT(*) FROM groupmembers WHERE groupid = :groupid AND userid = :userid");
+    $checkifmember->bindParam(":groupid", $groupid);
+    $checkifmember->bindParam(":userid", $userid);
+    $checkifmember->execute();
+    $checkifmember->setFetchMode(PDO::FETCH_ASSOC);
+    $results = $checkifmember->fetchAll();
+    if($posters === "owner" && $ownerid != $_SESSION['id']){
+        die();
+    } else if($posters === "members" && $results[0]["COUNT(*)"] === 0) {
+        die();
+    }
     $insert_msg = $conn->prepare("INSERT INTO messages VALUES (LEFT(UUID(), 8), :messagetext, CURRENT_TIMESTAMP(), :userid, :groupid)");
     $insert_msg->bindParam(":messagetext", $messagetext);
     $insert_msg->bindParam(":userid", $_SESSION['id']);

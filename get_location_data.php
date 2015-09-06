@@ -6,10 +6,10 @@
  * Time: 7:30 AM
  */
 class MapDataPoint {
-    private $type;
-    private $lat;
-    private $long;
-    private $id;
+    public $type;
+    public $lat;
+    public $lng;
+    public $id;
 
     /**
      * MapDataPoint constructor.
@@ -18,10 +18,10 @@ class MapDataPoint {
      * @param $long
      * @param $id
      */
-    public function __construct($type, $lat, $long, $id) {
+    public function __construct($type, $lat, $lng, $id) {
         $this->type = $type;
         $this->lat = $lat;
-        $this->long = $long;
+        $this->lng = $lng;
         $this->id = $id;
     }
 
@@ -73,7 +73,7 @@ try{
     $maxlat = $_POST['maxlat'];
     $minlong = $_POST['minlong'];
     $maxlong = $_POST['maxlong'];
-    $get_locations = $conn->prepare("SELECT userid, X(location) AS xcoord, Y(location) AS ycoord FROM users WHERE X(location) BETWEEN :minlat AND :maxlat AND Y(location) BETWEEN :minlong AND :maxlong");
+    $get_locations = $conn->prepare("SELECT userid, X(location), Y(location) FROM users WHERE X(location) BETWEEN :minlat AND :maxlat AND Y(location) BETWEEN :minlong AND :maxlong");
     $get_locations->bindParam(":minlat", $minlat);
     $get_locations->bindParam(":maxlat", $maxlat);
     $get_locations->bindParam(":minlong", $minlong);
@@ -83,9 +83,9 @@ try{
     $results = $get_locations->fetchAll();
     $mappoints = [];
     foreach($results as $row){
-        $mappoints[] = new MapDataPoint("user", $row['xcoord'], $row['ycoord'], $row['userid']);
+        $mappoints[] = new MapDataPoint("user", $row['X(location)'], $row['Y(location)'], $row['userid']);
     }
-    $get_group_locations = $conn->prepare("SELECT groupid, X(location) AS xcoord, Y(location) AS ycoord FROM groupid WHERE X(location) BETWEEN :minlat AND :maxlat AND Y(location) BETWEEN :minlong AND :maxlong");
+    $get_group_locations = $conn->prepare("SELECT groupid, X(location), Y(location), expirytime FROM groups WHERE X(location) BETWEEN :minlat AND :maxlat AND Y(location) BETWEEN :minlong AND :maxlong");
     $get_group_locations->bindParam(":minlat", $minlat);
     $get_group_locations->bindParam(":maxlat", $maxlat);
     $get_group_locations->bindParam(":minlong", $minlong);
@@ -93,8 +93,9 @@ try{
     $get_group_locations->execute();
     $get_group_locations->setFetchMode(PDO::FETCH_ASSOC);
     $results = $get_group_locations->fetchAll();
+    error_log(count($results));
     foreach($results as $row){
-        $mappoints[] = new MapDataPoint("group", $row['xcoord'], $row['ycoord'], $row['userid']);
+        $mappoints[] = new MapDataPoint("group", $row['X(location)'], $row['Y(location)'], $row['groupid']);
     }
     echo json_encode($mappoints);
 } catch(PDOException $e){

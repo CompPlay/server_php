@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: sid
  * Date: 9/5/15
- * Time: 8:00 AM
+ * Time: 2:40 AM
  */
 session_start();
 $servername = "us-cdbr-azure-east-b.cloudapp.net";
@@ -13,18 +13,17 @@ if(!isset($_SESSION['id']) || $_SESSION['loggedin'] === false){
     header("Location: login.html");
     die();
 }
-try{
+try {
     $conn = new PDO("mysql:host=$servername;dbname=complaydb", $username, $password);
     // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $groupid = $_GET['groupid'];
-    $select_group = $conn->prepare("SELECT groupid, game, memberlimit, X(location) AS latitude, Y(location) AS longitude, name, skill, privacy, posters, expirytime, timecreated, ownerid FROM groups WHERE groupid = :groupid");
-    $select_group->bindParam(":groupid", $groupid);
-    $select_group->execute();
-    $select_group->setFetchMode(PDO::FETCH_ASSOC);
-    $results = $select_group->fetchAll();
-    echo json_encode($results[0]);
-} catch(PDOException $e){
+    $userid = $_SESSION['id'];
+    $groupid = $_POST['groupid'];
+    $add_self_to_group = $conn->prepare("INSERT INTO groupmembers VALUES(:userid, :groupid)");
+    $add_self_to_group->bindParam(":userid", $userid);
+    $add_self_to_group->bindParam(":groupid", $groupid);
+    $add_self_to_group->execute();
+} catch(PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
 }
 ?>

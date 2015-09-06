@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: sid
  * Date: 9/5/15
- * Time: 8:00 AM
+ * Time: 7:30 AM
  */
 session_start();
 $servername = "us-cdbr-azure-east-b.cloudapp.net";
@@ -17,14 +17,20 @@ try{
     $conn = new PDO("mysql:host=$servername;dbname=complaydb", $username, $password);
     // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $userid = $_SESSION['id'];
     $groupid = $_GET['groupid'];
-    $select_group = $conn->prepare("SELECT groupid, game, memberlimit, X(location) AS latitude, Y(location) AS longitude, name, skill, privacy, posters, expirytime, timecreated, ownerid FROM groups WHERE groupid = :groupid");
-    $select_group->bindParam(":groupid", $groupid);
-    $select_group->execute();
-    $select_group->setFetchMode(PDO::FETCH_ASSOC);
-    $results = $select_group->fetchAll();
-    echo json_encode($results[0]);
-} catch(PDOException $e){
+    $get_group_locations = $conn->prepare("SELECT COUNT(*) FROM groupmembers WHERE userid=:userid AND groupid=:groupid");;
+    $get_group_locations->bindParam(":userid", $userid);
+    $get_group_locations->bindParam(":groupid", $groupid);
+    $get_group_locations->execute();
+    $get_group_locations->setFetchMode(PDO::FETCH_ASSOC);
+    $results = $get_group_locations->fetchAll();
+    if($results[0]['COUNT(*)'] >= 1) {
+        echo "true";
+    } else {
+        echo "false";
+    }
+} catch(PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
 }
 ?>

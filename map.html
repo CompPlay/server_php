@@ -1,13 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>ComPlay: Map</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="Come Play Competitive Games: Map for Games">
-    <meta name="author" content="Brendan Hart">
-
+    <link href = "css/navbar.css" rel = "stylesheet">
     <!-- Button CSS -->
     <link href = "css/bootstrap-social.css" rel = "stylesheet">
 
@@ -15,15 +12,31 @@
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
-    <script src="https://maps.googleapis.com/maps/api/js"></script>
-    <script src="js/complay.js"></script>
-
+    <script src="https://maps.googleapis.com/maps/api/js?signed_in=false&callback=initMap"
+        async >
+    </script>
+    <script src="complay.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootbox.min.js"></script>
     <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+    <link rel='shortcut icon' href='favicon.ico' type='image/x-icon'/>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 92.3%;
+		width: 100%
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar navbar-default" role="navigation">
-        <div class="container">
+        <div class="container topnav">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
@@ -35,10 +48,439 @@
                 <a class="navbar-brand topnav" href="#"><strong>ComPlay</strong></a>
             </div>
             <!-- Collect the nav links, forms, and other content for toggling -->
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <form id="logoutform" class = "navbar-form navbar-right" method="post" action="logout.php" >
+                    <div class="form-group">
+                        <label id="welcome"></label>
+                    </div>
+                    <div class="form-group">
+                    </div>
+                    <button type="submit" class="btn btn-default" style="margin-left: 15px">Logout</button>
+                </form>
+            </div>
+            <!-- /.navbar-collapse -->
         </div>
         <!-- /.container -->
     </nav>
     <div id="map"></div>
-    <p id="demo"></p>
+    <script>
+// Note: This example requires that you consent to location sharing when
+// prompted by your browser. If you see the error "The Geolocation service
+// failed.", it means you probably did not give permission for the browser to
+// locate you.
+var map;
+var sessionData = getSessionData();
+var mappoints;
+var markers = [];
+var latitude_dropped_marker;
+var longitude_dropped_marker;
+var dropped_marker;
+function initMap() {
+  var kekmap = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: 37.6, lng: -95.665},
+    zoom: 10
+  });
+  map=kekmap;
+  //var infoWindow = new google.maps.InfoWindow({map: map});
+  setInterval(asyncGetLocationData, 3000);
+  google.maps.event.addListener(map, "rightclick", function(event) {
+      latitude_dropped_marker = event.latLng.lat();
+      longitude_dropped_marker = event.latLng.lng();
+      dropMarker();
+  });
+  // Try HTML5 geolocation.
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      //infoWindow.setPosition(pos);
+      //infoWindow.setContent('Location found.');
+      map.setCenter(pos);
+      asyncGetLocationData();
+    }, function() {
+      handleLocationError(true, new google.maps.InfoWindow({map: map}), map.getCenter());
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleLocationError(false, new google.maps.InfoWindow({map: map}), map.getCenter());
+  }
+}
+
+function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+  infoWindow.setPosition(pos);
+  infoWindow.setContent(browserHasGeolocation ?
+                        'Error: The Geolocation service failed.' :
+                        'Error: Your browser doesn\'t support geolocation.');
+}
+
+function asyncGetLocationData() {
+    var xmlhttp;
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    var maxlat = map.getBounds().getNorthEast().lat();
+    var maxlng = map.getBounds().getNorthEast().lng();
+    var minlat = map.getBounds().getSouthWest().lat();
+    var minlng = map.getBounds().getSouthWest().lng();
+    console.log(minlat+", "+maxlat+" : "+minlng+", "+maxlng);
+    xmlhttp.onreadystatechange=function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+            mappoints = JSON.parse(xmlhttp.responseText);
+            console.log(xmlhttp.responseText);
+            renderMapPoints(mappoints);
+        }
+    };
+    xmlhttp.open("POST", "get_location_data.php", true);
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xmlhttp.send("maxlat="+maxlat+"&maxlong="+maxlng+"&minlat="+minlat+"&minlong="+minlng);
+}
+
+/*function renderMapPoints(mappoints){
+    //var pointtooltip = {point: null, tooltip: null};
+    var xmlhttp;
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    //var j = markers.length;
+    for(var i = 0; i<mappoints.length; i++){
+        if(mappoints[i].type === "group") {
+            xmlhttp.open("GET", "get_group_data.php?groupid=" + mappoints[i].id, false);
+            xmlhttp.send();
+            var group = JSON.parse(xmlhttp.responseText);
+            var dup = false;
+            for(var j = 0; j<markers.length; j++){
+               if(markers[j].point.position.lat == parseFloat(mappoints[i].lat) && markers[j].point.position.lng == parseFloat(mappoints[i].lng)){
+                   dup = true;
+                   console.log("found a duplicate");
+               } else {
+                   //console.log(markers[j].point.position.lat);
+                   //console.log(markers[j].point.position.lng);
+                   //console.log(parseFloat(mappoints[i].lat));
+                   //console.log(parseFloat(mappoints[i].lng));
+               }
+            }
+            if(dup === true){}
+            else {
+                xmlhttp.open("GET", "get_user_data.php?userid=" + group.ownerid, false);
+                xmlhttp.send();
+                var skilllevel;
+                switch (parseInt(group.skill)) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        skilllevel = "beginners";
+                        break;
+                    case 4:
+                    case 5:
+                    case 6:
+                        skilllevel = "intermediate participants";
+                        break;
+                    case 7:
+                    case 8:
+                    case 9:
+                        skilllevel = "experienced participants";
+                        break;
+                    default:
+                        skilllevel = "anyone and everyone!";
+                        break;
+                }
+                var user = JSON.parse(xmlhttp.responseText);
+                var j = markers.push({point: new google.maps.Marker({
+                    position: {lat: parseFloat(mappoints[i].lat), lng: parseFloat(mappoints[i].lng)},
+                    map: map,
+                    title: group.name + ": " + group.game,
+                    draggable: false
+                }), tooltip: new google.maps.InfoWindow()});
+                //markers[j-1].point.addListener('click', function () {
+                //   markers[j-1].tooltip.open(map, markers[j-1].point);
+                //});
+                google.maps.event.addListener(markers[j-1].point, 'click', (function(marker) {
+                        return function() {
+                            var tooltiptext = "<h2>" + group.name + "</h2><br/><h4>An event for: " + group.game + "</h4><br/>" +
+                        "<p>Created by " + user.username + ". For " + skilllevel + ". Expires: " + ((group.expirytime) ? (group.expirytime + " UTC") : "Never") + ".</p>";
+                            markers[j-1].tooltip.setContent(tooltiptext);
+                            markers[j-1].tooltip.open(map, marker);
+                        }
+                })(markers[j-1].point));
+                map.addListener('click', function () {
+                    markers[j-1].tooltip.close();
+                });
+            }
+        } else if(mappoints[i].type === "user"){
+            xmlhttp.open("GET", "get_user_data.php?userid=" + mappoints[i].id, false);
+            xmlhttp.send();
+            var user = JSON.parse(xmlhttp.responseText);
+            var dup = false;
+            for(var j = 0; j<markers.length; j++){
+                if(markers[j].point.position.lat == parseFloat(mappoints[i].lat) && markers[j].point.position.lng == parseFloat(mappoints[i].lng)){
+                    dup = true;
+                    console.log("found a duplicate");
+                } else {
+                   //console.log(markers[j].point.position.lat);
+                   //console.log(markers[j].point.position.lng);
+                   //console.log(parseFloat(mappoints[i].lat));
+                   //console.log(parseFloat(mappoints[i].lng));
+               }
+            }
+            if(dup === true){}
+            else {
+                var j = markers.push({point: new google.maps.Marker({
+                    position: {lat: parseFloat(mappoints[i].lat), lng: parseFloat(mappoints[i].lng)},
+                    map: map,
+                    title: group.name + ": " + group.game,
+                    draggable: false
+                }), tooltip: new google.maps.InfoWindow()});
+                //markers[j-1].point.addListener('click', function () {
+                //    markers[j-1].tooltip.open(map, markers[j-1].point);
+                //});
+                google.maps.event.addListener(markers[j-1].point, 'click', (function(marker) {
+                    return function() {
+                        var tooltiptext = "<h2>" + user.username + "</h2>";
+                        markers[j-1].tooltip.setContent(tooltiptext);
+                        markers[j-1].tooltip.open(map, marker);
+                    }
+                })(markers[j-1].point));
+                map.addListener('click', function () {
+                    markers[j-1].tooltip.close();
+                });
+            }
+        }
+    }
+    //for(var i = 0; i<j; i++) {
+    //    markers[i].setMap(null);
+    //}
+    //markers = markers.splice(0, j);
+}*/
+var pastmappoints = [];
+function renderMapPoints(mappoints){
+    var infowindow = new google.maps.InfoWindow();
+    var marker;
+    for (var i = 0; i < mappoints.length; i++) {
+      var dup = false
+      for(var j = 0; j< pastmappoints.length; j++){
+         if(pastmappoints[j].id === mappoints[i].id && pastmappoints[j].type === mappoints[i].type){
+            dup = true;
+         }
+      }
+      if(dup) {
+          continue;
+      }
+      marker = new google.maps.Marker({
+        position: {lat: parseFloat(mappoints[i].lat), lng: parseFloat(mappoints[i].lng)},
+        map: map,
+        draggable: false
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          var tooltiptext;
+          var xmlhttp;
+          if (window.XMLHttpRequest) {
+            xmlhttp = new XMLHttpRequest();
+          } else {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+          }
+          if(mappoints[i].type === "group"){
+              xmlhttp.open("GET", "get_group_data.php?groupid=" + mappoints[i].id, false);
+              xmlhttp.send();
+              var group = JSON.parse(xmlhttp.responseText);
+              xmlhttp.open("GET", "get_user_data.php?userid=" + group.ownerid, false);
+              xmlhttp.send();
+              var user = JSON.parse(xmlhttp.responseText);
+              xmlhttp.open("GET", "is_in_group.php?groupid=" + group.groupid, false);
+              xmlhttp.send();
+              var isInGroup = xmlhttp.responseText;
+              var skilllevel;
+              switch (parseInt(group.skill)) {
+                  case 0:
+                  case 1:
+                  case 2:
+                  case 3:
+                      skilllevel = "beginners";
+                      break;
+                  case 4:
+                  case 5:
+                  case 6:
+                      skilllevel = "intermediate participants";
+                      break;
+                  case 7:
+                  case 8:
+                  case 9:
+                      skilllevel = "experienced participants";
+                      break;
+                  default:
+                      skilllevel = "anyone and everyone!";
+                      break;
+              }
+              tooltiptext = "<h2>" + group.name + "</h2><br/><h4>An event for: " + group.game + "</h4><br/>" +
+              "<p>Created by " + user.username + ". For " + skilllevel + ". Expires at " + ((group.expirytime) ? (group.expirytime + " UTC") : "Never") + ".</p>";
+              if(isInGroup === "false"){
+                  tooltiptext = tooltiptext + "<br/><div id=\"joingroupdiv_"+group.groupid+"\">" +
+                  "<button id=\"joingroupbutton_"+group.groupid+"\" onclick=\"postJoinGroupForm('"+group.groupid+"')\">Join group</button><input type=\"hidden\" name=\"groupid\" value=\""+group.groupid+"\"></input></div>";
+
+              } else {
+                  tooltiptext = tooltiptext + "<br/><p>You are a member of this group.</p>";
+              }
+          } else if(mappoints[i].type === "user"){
+              xmlhttp.open("GET", "get_user_data.php?userid=" + mappoints[i].id, false);
+              xmlhttp.send();
+              var user = JSON.parse(xmlhttp.responseText);
+              tooltiptext = "<h2>" + user.username + "</h2>";
+          }
+          infowindow.setContent(tooltiptext);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+    }
+}
+
+
+function getSessionData() {
+    var xmlhttp;
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.open("POST", "get_session_data.php", false);
+    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xmlhttp.send();
+    var $_SESSION = JSON.parse(xmlhttp.responseText);
+    if($_SESSION.hasOwnProperty("loggedin") && $_SESSION.hasOwnProperty("name") && $_SESSION.loggedin === true) {
+        document.getElementById("welcome").innerHTML="Welcome, "+$_SESSION.name;
+    }
+    else {
+        window.location = "signin.html";
+    }
+    return $_SESSION;
+}
+function dropMarker(){
+    if(dropped_marker) dropped_marker.setMap(null);
+    dropped_marker = new google.maps.Marker({
+        position: {lat: latitude_dropped_marker, lng: longitude_dropped_marker},
+        map: map,
+        title: "Untitled Marker",
+        draggable: false
+    });
+    var contentstring = "<h2>Create event?</h2><br/><button onclick=\"createGroup()\">Create</button>";
+    var tooltip = new google.maps.InfoWindow({content: contentstring});
+    tooltip.open(map, dropped_marker);
+    dropped_marker.addListener('click', function(){
+        tooltip.open(map, dropped_marker);
+    });
+    map.addListener('click', function(){
+        tooltip.close();
+        dropped_marker.setMap(null);
+    });
+}
+function createGroup(){
+    bootbox.dialog({
+                title: "Create group",
+                message: '<div class="row">  ' +
+                    '<div class="col-md-12"> ' +
+                    '<form id="creategroupform" class="form-horizontal" method="post" action="create_group.php"> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="name">Event Name</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<input id="groupname" name="name" type="text" placeholder="Event name" class="form-control input-md"> ' +
+                    '</div> ' +
+                    '</div> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="game">Event Game/Activity</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<input id="groupgame" name="game" type="text" placeholder="Event game/activity" class="form-control input-md"> ' +
+                    '</div> ' +
+                    '</div> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="skill">Event Skill Group (on a scale of 1-10)</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<input id="groupskill" name="skill" type="number" min="1" max="10" placeholder="Skill group" class="form-control input-md"> ' +
+                    '</div> ' +
+                    '</div> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="timetoexpire">How long before this event expires? (In hours)</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<input type="number" min="0" max="48" id="groupexpirytime" name="timetoexpire" class="form-control input-md" placeholder="Time to expire"> ' +
+                    '</div> ' +
+                    '</div> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="posters">Who can post in the group?</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<select id="groupposters" name="posters" class="form-control"> ' +
+                    '<option value="members">Only members</option>' +
+                    '<option value="owner">Only you</option>' +
+                    '<option value="open">Anyone</option>' +
+                    '</div> ' +
+                    '</div>' +
+                    '<input id="grouplocx" type="hidden" name="locx" value="">' +
+                    '<input id="grouplocy" type="hidden" name="locy" value="">' +
+                    '</form> </div>  </div>',
+                buttons: {
+                    success: {
+                        label: "Create",
+                        className: "btn-success",
+                        callback: function () {
+                            document.getElementById("grouplocx").value = latitude_dropped_marker;
+                            document.getElementById("grouplocy").value = longitude_dropped_marker;
+                            $.post('create_group.php', $('#creategroupform').serialize());
+                            asyncGetLocationData();
+                        }
+                    }
+                }
+            }
+        );
+    dropped_marker.setMap(null);
+}
+function postJoinGroupForm(groupid){
+    $.ajax({
+      type: 'POST',
+      url: "join_group.php",
+      data: "groupid="+groupid,
+      success: function(){
+          document.getElementById("joingroupdiv_"+groupid).innerHTML="<p>You are a member of this group.</p>";
+      },
+      async:true
+    });
+    document.getElementById("joingroupdiv_"+groupid).innerHTML="<p>Processing your request...</p>";
+    var xmlhttp;
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.open("GET", "get_group_data.php?groupid=" + groupid, false);
+    xmlhttp.send();
+    var group = JSON.parse(xmlhttp.responseText);
+}
+/*function loadScript() {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&' +
+      'callback=initialize';
+  document.body.appendChild(script);
+}
+
+window.onload = loadScript;*/
+    </script>
+  <!-- <script src="https://maps.googleapis.com/maps/api/js?signed_in=false&callback=initMap"
+        async defer>
+    </script> -->
   </body>
 </html>
