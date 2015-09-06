@@ -78,7 +78,7 @@ var dropped_marker;
 function initMap() {
   var kekmap = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 37.6, lng: -95.665},
-    zoom: 6
+    zoom: 10
   });
   map=kekmap;
   //var infoWindow = new google.maps.InfoWindow({map: map});
@@ -133,6 +133,7 @@ function asyncGetLocationData() {
     xmlhttp.onreadystatechange=function() {
         if (xmlhttp.readyState==4 && xmlhttp.status==200) {
             mappoints = JSON.parse(xmlhttp.responseText);
+            console.log(xmlhttp.responseText);
             renderMapPoints(mappoints);
         }
     };
@@ -141,8 +142,8 @@ function asyncGetLocationData() {
     xmlhttp.send("maxlat="+maxlat+"&maxlong="+maxlng+"&minlat="+minlat+"&minlong="+minlng);
 }
 
-function renderMapPoints(mappoints){
-    var mark;
+/*function renderMapPoints(mappoints){
+    //var pointtooltip = {point: null, tooltip: null};
     var xmlhttp;
     if (window.XMLHttpRequest) {
         // code for IE7+, Firefox, Chrome, Opera, Safari
@@ -151,71 +152,180 @@ function renderMapPoints(mappoints){
         // code for IE6, IE5
         xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
     }
-    var j = markers.length;
+    //var j = markers.length;
     for(var i = 0; i<mappoints.length; i++){
         if(mappoints[i].type === "group") {
             xmlhttp.open("GET", "get_group_data.php?groupid=" + mappoints[i].id, false);
             xmlhttp.send();
             var group = JSON.parse(xmlhttp.responseText);
-            mark = new google.maps.Marker({
-                position: {lat: parseFloat(mappoints[i].lat), lng: parseFloat(mappoints[i].lng)},
-                map: map,
-                title: group.name+": "+group.game,
-                draggable: false
-            });
-            xmlhttp.open("GET", "get_user_data.php?userid=" + group.ownerid, false);
-            xmlhttp.send();
-            var skilllevel;
-            switch(parseInt(group.skill)){
-                case 0:
-                case 1:
-                case 2:
-                case 3: skilllevel="beginners"; break;
-                case 4:
-                case 5:
-                case 6: skilllevel="intermediate participants"; break;
-                case 7:
-                case 8:
-                case 9: skilllevel="experienced participants"; break;
-                default: skilllevel="anyone and everyone!"; break;
+            var dup = false;
+            for(var j = 0; j<markers.length; j++){
+               if(markers[j].point.position.lat == parseFloat(mappoints[i].lat) && markers[j].point.position.lng == parseFloat(mappoints[i].lng)){
+                   dup = true;
+                   console.log("found a duplicate");
+               } else {
+                   //console.log(markers[j].point.position.lat);
+                   //console.log(markers[j].point.position.lng);
+                   //console.log(parseFloat(mappoints[i].lat));
+                   //console.log(parseFloat(mappoints[i].lng));
+               }
             }
-            var user = JSON.parse(xmlhttp.responseText);
-            var contentstring = "<h2>"+group.name+"</h2><br/><h4>An event for: "+group.game+"</h4><br/>" +
-                            "<p>Created by "+user.username+". For "+skilllevel+". Expires: "+((group.expirytime) ? (group.expirytime+" UTC") : "Never")+".</p>";
-            var tooltip = new google.maps.InfoWindow({content: contentstring});
-            mark.addListener('click', function(){
-                tooltip.open(map, mark);
-            });
-            map.addListener('click', function(){
-                tooltip.close();
-            });
+            if(dup === true){}
+            else {
+                xmlhttp.open("GET", "get_user_data.php?userid=" + group.ownerid, false);
+                xmlhttp.send();
+                var skilllevel;
+                switch (parseInt(group.skill)) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        skilllevel = "beginners";
+                        break;
+                    case 4:
+                    case 5:
+                    case 6:
+                        skilllevel = "intermediate participants";
+                        break;
+                    case 7:
+                    case 8:
+                    case 9:
+                        skilllevel = "experienced participants";
+                        break;
+                    default:
+                        skilllevel = "anyone and everyone!";
+                        break;
+                }
+                var user = JSON.parse(xmlhttp.responseText);
+                var j = markers.push({point: new google.maps.Marker({
+                    position: {lat: parseFloat(mappoints[i].lat), lng: parseFloat(mappoints[i].lng)},
+                    map: map,
+                    title: group.name + ": " + group.game,
+                    draggable: false
+                }), tooltip: new google.maps.InfoWindow()});
+                //markers[j-1].point.addListener('click', function () {
+                //   markers[j-1].tooltip.open(map, markers[j-1].point);
+                //});
+                google.maps.event.addListener(markers[j-1].point, 'click', (function(marker) {
+                        return function() {
+                            var tooltiptext = "<h2>" + group.name + "</h2><br/><h4>An event for: " + group.game + "</h4><br/>" +
+                        "<p>Created by " + user.username + ". For " + skilllevel + ". Expires: " + ((group.expirytime) ? (group.expirytime + " UTC") : "Never") + ".</p>";
+                            markers[j-1].tooltip.setContent(tooltiptext);
+                            markers[j-1].tooltip.open(map, marker);
+                        }
+                })(markers[j-1].point));
+                map.addListener('click', function () {
+                    markers[j-1].tooltip.close();
+                });
+            }
         } else if(mappoints[i].type === "user"){
             xmlhttp.open("GET", "get_user_data.php?userid=" + mappoints[i].id, false);
             xmlhttp.send();
             var user = JSON.parse(xmlhttp.responseText);
-            mark = new google.maps.Marker({
-                position: {lat: parseFloat(mappoints[i].lat), lng: parseFloat(mappoints[i].lng)},
-                map: map,
-                title: user.name,
-                draggable: false
-            });
-            var contentstring = "<h2>"+user.username+"</h2><br/><h4>An event for: "+group.game+"</h4><br/>" +
-                    "<p>Created by "+user.username+".</p>"
-            var tooltip = new google.maps.InfoWindow({content: contentstring});
-            mark.addListener('click', function(){
-                tooltip.open(map, mark);
-            });
-            map.addListener('click', function(){
-                tooltip.close();
-            });
+            var dup = false;
+            for(var j = 0; j<markers.length; j++){
+                if(markers[j].point.position.lat == parseFloat(mappoints[i].lat) && markers[j].point.position.lng == parseFloat(mappoints[i].lng)){
+                    dup = true;
+                    console.log("found a duplicate");
+                } else {
+                   //console.log(markers[j].point.position.lat);
+                   //console.log(markers[j].point.position.lng);
+                   //console.log(parseFloat(mappoints[i].lat));
+                   //console.log(parseFloat(mappoints[i].lng));
+               }
+            }
+            if(dup === true){}
+            else {
+                var j = markers.push({point: new google.maps.Marker({
+                    position: {lat: parseFloat(mappoints[i].lat), lng: parseFloat(mappoints[i].lng)},
+                    map: map,
+                    title: group.name + ": " + group.game,
+                    draggable: false
+                }), tooltip: new google.maps.InfoWindow()});
+                //markers[j-1].point.addListener('click', function () {
+                //    markers[j-1].tooltip.open(map, markers[j-1].point);
+                //});
+                google.maps.event.addListener(markers[j-1].point, 'click', (function(marker) {
+                    return function() {
+                        var tooltiptext = "<h2>" + user.username + "</h2>";
+                        markers[j-1].tooltip.setContent(tooltiptext);
+                        markers[j-1].tooltip.open(map, marker);
+                    }
+                })(markers[j-1].point));
+                map.addListener('click', function () {
+                    markers[j-1].tooltip.close();
+                });
+            }
         }
-        markers.push(mark);
     }
-    for(var i = 0; i<j; i++) {
-        markers[i].setMap(null);
+    //for(var i = 0; i<j; i++) {
+    //    markers[i].setMap(null);
+    //}
+    //markers = markers.splice(0, j);
+}*/
+function renderMapPoints(mappoints){
+    var infowindow = new google.maps.InfoWindow();
+    var marker;
+    for (var i = 0; i < mappoints.length; i++) {
+      marker = new google.maps.Marker({
+        position: {lat: parseFloat(mappoints[i].lat), lng: parseFloat(mappoints[i].lng)},
+        map: map,
+        draggable: false
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          var tooltiptext;
+          var xmlhttp;
+          if (window.XMLHttpRequest) {
+            xmlhttp = new XMLHttpRequest();
+          } else {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+          }
+          if(mappoints[i].type === "group"){
+              xmlhttp.open("GET", "get_group_data.php?groupid=" + mappoints[i].id, false);
+              xmlhttp.send();
+              var group = JSON.parse(xmlhttp.responseText);
+              xmlhttp.open("GET", "get_user_data.php?userid=" + group.ownerid, false);
+              xmlhttp.send();
+              var user = JSON.parse(xmlhttp.responseText);
+              var skilllevel;
+              switch (parseInt(group.skill)) {
+                  case 0:
+                  case 1:
+                  case 2:
+                  case 3:
+                      skilllevel = "beginners";
+                      break;
+                  case 4:
+                  case 5:
+                  case 6:
+                      skilllevel = "intermediate participants";
+                      break;
+                  case 7:
+                  case 8:
+                  case 9:
+                      skilllevel = "experienced participants";
+                      break;
+                  default:
+                      skilllevel = "anyone and everyone!";
+                      break;
+              }
+              tooltiptext = "<h2>" + group.name + "</h2><br/><h4>An event for: " + group.game + "</h4><br/>" +
+              "<p>Created by " + user.username + ". For " + skilllevel + ". Expires at " + ((group.expirytime) ? (group.expirytime + " UTC") : "Never") + ".</p>";
+          } else if(mappoints[i].type === "user"){
+              xmlhttp.open("GET", "get_user_data.php?userid=" + mappoints[i].id, false);
+              xmlhttp.send();
+              var user = JSON.parse(xmlhttp.responseText);
+              tooltiptext = "<h2>" + user.username + "</h2>";
+          }
+          infowindow.setContent(tooltiptext);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
     }
-    markers = markers.splice(0, j);
 }
+
 
 function getSessionData() {
     var xmlhttp;
@@ -249,8 +359,12 @@ function dropMarker(){
     var contentstring = "<h2>Create event?</h2><br/><button onclick=\"createGroup()\">Create</button>";
     var tooltip = new google.maps.InfoWindow({content: contentstring});
     tooltip.open(map, dropped_marker);
+    dropped_marker.addListener('click', function(){
+        tooltip.open(map, dropped_marker);
+    });
     map.addListener('click', function(){
         tooltip.close();
+        dropped_marker.setMap(null);
     });
 }
 function createGroup(){
@@ -311,6 +425,15 @@ function createGroup(){
         );
     dropped_marker.setMap(null);
 }
+/*function loadScript() {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = 'https://maps.googleapis.com/maps/api/js?v=3.exp&' +
+      'callback=initialize';
+  document.body.appendChild(script);
+}
+
+window.onload = loadScript;*/
     </script>
   <!-- <script src="https://maps.googleapis.com/maps/api/js?signed_in=false&callback=initMap"
         async defer>
