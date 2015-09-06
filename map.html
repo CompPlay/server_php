@@ -263,10 +263,20 @@ function asyncGetLocationData() {
     //}
     //markers = markers.splice(0, j);
 }*/
+var pastmappoints = [];
 function renderMapPoints(mappoints){
     var infowindow = new google.maps.InfoWindow();
     var marker;
     for (var i = 0; i < mappoints.length; i++) {
+      var dup = false
+      for(var j = 0; j< pastmappoints.length; j++){
+         if(pastmappoints[j].id === mappoints[i].id && pastmappoints[j].type === mappoints[i].type){
+            dup = true;
+         }
+      }
+      if(dup) {
+          continue;
+      }
       marker = new google.maps.Marker({
         position: {lat: parseFloat(mappoints[i].lat), lng: parseFloat(mappoints[i].lng)},
         map: map,
@@ -289,6 +299,9 @@ function renderMapPoints(mappoints){
               xmlhttp.open("GET", "get_user_data.php?userid=" + group.ownerid, false);
               xmlhttp.send();
               var user = JSON.parse(xmlhttp.responseText);
+              xmlhttp.open("GET", "is_in_group.php?groupid=" + group.groupid, false);
+              xmlhttp.send();
+              var isInGroup = xmlhttp.responseText;
               var skilllevel;
               switch (parseInt(group.skill)) {
                   case 0:
@@ -313,6 +326,13 @@ function renderMapPoints(mappoints){
               }
               tooltiptext = "<h2>" + group.name + "</h2><br/><h4>An event for: " + group.game + "</h4><br/>" +
               "<p>Created by " + user.username + ". For " + skilllevel + ". Expires at " + ((group.expirytime) ? (group.expirytime + " UTC") : "Never") + ".</p>";
+              if(isInGroup === "false"){
+                  tooltiptext = tooltiptext + "<br/><div id=\"joingroupdiv_"+group.groupid+"\">" +
+                  "<button id=\"joingroupbutton_"+group.groupid+"\" onclick=\"postJoinGroupForm('"+group.groupid+"')\">Join group</button><input type=\"hidden\" name=\"groupid\" value=\""+group.groupid+"\"></input></div>";
+
+              } else {
+                  tooltiptext = tooltiptext + "<br/><p>You are a member of this group.</p>";
+              }
           } else if(mappoints[i].type === "user"){
               xmlhttp.open("GET", "get_user_data.php?userid=" + mappoints[i].id, false);
               xmlhttp.send();
@@ -424,6 +444,29 @@ function createGroup(){
             }
         );
     dropped_marker.setMap(null);
+}
+function postJoinGroupForm(groupid){
+    $.ajax({
+      type: 'POST',
+      url: "join_group.php",
+      data: "groupid="+groupid,
+      success: function(){
+          document.getElementById("joingroupdiv_"+groupid).innerHTML="<p>You are a member of this group.</p>";
+      },
+      async:true
+    });
+    document.getElementById("joingroupdiv_"+groupid).innerHTML="<p>Processing your request...</p>";
+    var xmlhttp;
+    if (window.XMLHttpRequest) {
+        // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp = new XMLHttpRequest();
+    } else {
+        // code for IE6, IE5
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.open("GET", "get_group_data.php?groupid=" + groupid, false);
+    xmlhttp.send();
+    var group = JSON.parse(xmlhttp.responseText);
 }
 /*function loadScript() {
   var script = document.createElement('script');

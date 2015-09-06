@@ -31,7 +31,9 @@ try {
     $timetoexpire = $_POST['timetoexpire'];
     $timetoexpire = $timetoexpire * 3600;
     $ownerid = $_SESSION['id'];
-    $insert_group = $conn->prepare("INSERT INTO groups VALUES (LEFT(UUID(), 10), :game, :memberlimit, POINT(:locx, :locy), :groupname, :skill, :privacy, :posters, FROM_UNIXTIME(UNIX_TIMESTAMP(CURRENT_TIMESTAMP()) + :timetoexpire), CURRENT_TIMESTAMP(), :ownerid)");
+    $set_id = $conn->prepare("SET @g=LEFT(UUID(), 10)");
+    $set_id->execute();
+    $insert_group = $conn->prepare("INSERT INTO groups VALUES (@g, :game, :memberlimit, POINT(:locx, :locy), :groupname, :skill, :privacy, :posters, FROM_UNIXTIME(UNIX_TIMESTAMP(CURRENT_TIMESTAMP()) + :timetoexpire), CURRENT_TIMESTAMP(), :ownerid)");
     $insert_group->bindParam(":game", $game);
     $insert_group->bindParam(":memberlimit", $memberlimit);
     $insert_group->bindParam(":locx", $locx);
@@ -41,8 +43,11 @@ try {
     $insert_group->bindParam(":privacy", $privacy);
     $insert_group->bindParam(":posters", $posters);
     $insert_group->bindParam(":timetoexpire", $timetoexpire);
-    $insert_group->bindParam(":ownerid", $_SESSION['id']);
+    $insert_group->bindParam(":ownerid", $ownerid);
     $insert_group->execute();
+    $add_self_to_group = $conn->prepare("INSERT INTO groupmembers VALUES(:ownerid, @g)");
+    $add_self_to_group->bindParam(":ownerid", $ownerid);
+    $add_self_to_group->execute();
 } catch(PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
 }
