@@ -18,14 +18,18 @@ try {
     // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $game = $_POST['game'];
-    $memberlimit = $_POST['memberlimit'];
+    //$memberlimit = $_POST['memberlimit'];
+    $memberlimit = 0;
     $locx = $_POST['locx'];
     $locy = $_POST['locy'];
     $name = $_POST['name'];
     $skill = $_POST['skill'];
-    $privacy = $_POST['privacy'];
+    $skill--;
+    //$privacy = $_POST['privacy'];
+    $privacy = "open";
     $posters = $_POST['posters'];
     $timetoexpire = $_POST['timetoexpire'];
+    $timetoexpire = $timetoexpire * 3600;
     $ownerid = $_SESSION['id'];
     $insert_group = $conn->prepare("INSERT INTO groups VALUES (LEFT(UUID(), 10), :game, :memberlimit, POINT(:locx, :locy), :groupname, :skill, :privacy, :posters, FROM_UNIXTIME(UNIX_TIMESTAMP(CURRENT_TIMESTAMP()) + :timetoexpire), CURRENT_TIMESTAMP(), :ownerid)");
     $insert_group->bindParam(":game", $game);

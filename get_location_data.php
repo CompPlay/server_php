@@ -85,7 +85,7 @@ try{
     foreach($results as $row){
         $mappoints[] = new MapDataPoint("user", $row['X(location)'], $row['Y(location)'], $row['userid']);
     }
-    $get_group_locations = $conn->prepare("SELECT groupid, X(location), Y(location) FROM groups WHERE X(location) BETWEEN :minlat AND :maxlat AND Y(location) BETWEEN :minlong AND :maxlong");
+    $get_group_locations = $conn->prepare("SELECT groupid, X(location), Y(location), expirytime FROM groups WHERE X(location) BETWEEN :minlat AND :maxlat AND Y(location) BETWEEN :minlong AND :maxlong");
     $get_group_locations->bindParam(":minlat", $minlat);
     $get_group_locations->bindParam(":maxlat", $maxlat);
     $get_group_locations->bindParam(":minlong", $minlong);

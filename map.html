@@ -16,6 +16,9 @@
         async >
     </script>
     <script src="complay.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootbox.min.js"></script>
     <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
     <style>
@@ -69,6 +72,9 @@ var map;
 var sessionData = getSessionData();
 var mappoints;
 var markers = [];
+var latitude_dropped_marker;
+var longitude_dropped_marker;
+var dropped_marker;
 function initMap() {
   var kekmap = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 37.6, lng: -95.665},
@@ -77,6 +83,11 @@ function initMap() {
   map=kekmap;
   var infoWindow = new google.maps.InfoWindow({map: map});
   setInterval(asyncGetLocationData, 3000);
+  google.maps.event.addListener(map, "rightclick", function(event) {
+      latitude_dropped_marker = event.latLng.lat();
+      longitude_dropped_marker = event.latLng.lng();
+      dropMarker();
+  });
   // Try HTML5 geolocation.
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
@@ -85,8 +96,8 @@ function initMap() {
         lng: position.coords.longitude
       };
 
-      infoWindow.setPosition(pos);
-      infoWindow.setContent('Location found.');
+      //infoWindow.setPosition(pos);
+      //infoWindow.setContent('Location found.');
       map.setCenter(pos);
       asyncGetLocationData();
     }, function() {
@@ -140,7 +151,7 @@ function renderMapPoints(mappoints){
         // code for IE6, IE5
         xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
     }
-    j = markers.length;
+    var j = markers.length;
     for(var i = 0; i<mappoints.length; i++){
         if(mappoints[i].type === "group") {
             xmlhttp.open("GET", "get_group_data.php?groupid=" + mappoints[i].id, false);
@@ -155,7 +166,7 @@ function renderMapPoints(mappoints){
             xmlhttp.open("GET", "get_user_data.php?userid=" + group.ownerid, false);
             xmlhttp.send();
             var skilllevel;
-            switch(group.skill){
+            switch(parseInt(group.skill)){
                 case 0:
                 case 1:
                 case 2:
@@ -170,7 +181,7 @@ function renderMapPoints(mappoints){
             }
             var user = JSON.parse(xmlhttp.responseText);
             var contentstring = "<h2>"+group.name+"</h2><br/><h4>An event for: "+group.game+"</h4><br/>" +
-                            "<p>Created by "+user.username+". For "+skilllevel+". Expires: "+(group.expirytime || "Never")+".</p>";
+                            "<p>Created by "+user.username+". For "+skilllevel+". Expires: "+((group.expirytime) ? (group.expirytime+" UTC") : "Never")+".</p>";
             var tooltip = new google.maps.InfoWindow({content: contentstring});
             mark.addListener('click', function(){
                 tooltip.open(map, mark);
@@ -204,7 +215,6 @@ function renderMapPoints(mappoints){
         markers[i].setMap(null);
     }
     markers = markers.splice(0, j);
-
 }
 
 function getSessionData() {
@@ -227,6 +237,79 @@ function getSessionData() {
         window.location = "signin.html";
     }
     return $_SESSION;
+}
+function dropMarker(){
+    if(dropped_marker) dropped_marker.setMap(null);
+    dropped_marker = new google.maps.Marker({
+        position: {lat: latitude_dropped_marker, lng: longitude_dropped_marker},
+        map: map,
+        title: "Untitled Marker",
+        draggable: false
+    });
+    var contentstring = "<h2>Create event?</h2><br/><button onclick=\"createGroup()\">Create</button>";
+    var tooltip = new google.maps.InfoWindow({content: contentstring});
+    tooltip.open(map, dropped_marker);
+    map.addListener('click', function(){
+        tooltip.close();
+    });
+}
+function createGroup(){
+    bootbox.dialog({
+                title: "Create group",
+                message: '<div class="row">  ' +
+                    '<div class="col-md-12"> ' +
+                    '<form id="creategroupform" class="form-horizontal" method="post" action="create_group.php"> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="name">Event Name</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<input id="groupname" name="name" type="text" placeholder="Event name" class="form-control input-md"> ' +
+                    '</div> ' +
+                    '</div> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="game">Event Game/Activity</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<input id="groupgame" name="game" type="text" placeholder="Event game/activity" class="form-control input-md"> ' +
+                    '</div> ' +
+                    '</div> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="skill">Event Skill Group (on a scale of 1-10)</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<input id="groupskill" name="skill" type="number" min="1" max="10" placeholder="Skill group" class="form-control input-md"> ' +
+                    '</div> ' +
+                    '</div> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="timetoexpire">How long before this event expires? (In hours)</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<input type="number" min="0" max="48" id="groupexpirytime" name="timetoexpire" class="form-control input-md" placeholder="Time to expire"> ' +
+                    '</div> ' +
+                    '</div> ' +
+                    '<div class="form-group"> ' +
+                    '<label class="col-md-4 control-label" for="posters">Who can post in the group?</label> ' +
+                    '<div class="col-md-4"> ' +
+                    '<select id="groupposters" name="posters" class="form-control"> ' +
+                    '<option value="members">Only members</option>' +
+                    '<option value="owner">Only you</option>' +
+                    '<option value="open">Anyone</option>' +
+                    '</div> ' +
+                    '</div>' +
+                    '<input id="grouplocx" type="hidden" name="locx" value="">' +
+                    '<input id="grouplocy" type="hidden" name="locy" value="">' +
+                    '</form> </div>  </div>',
+                buttons: {
+                    success: {
+                        label: "Create",
+                        className: "btn-success",
+                        callback: function () {
+                            document.getElementById("grouplocx").value = latitude_dropped_marker;
+                            document.getElementById("grouplocy").value = longitude_dropped_marker;
+                            $.post('create_group.php', $('#creategroupform').serialize());
+                            asyncGetLocationData();
+                        }
+                    }
+                }
+            }
+        );
+    dropped_marker.setMap(null);
 }
     </script>
   <!-- <script src="https://maps.googleapis.com/maps/api/js?signed_in=false&callback=initMap"
