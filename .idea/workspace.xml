@@ -40,8 +40,8 @@
       <file leaf-file-name="map.html" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/map.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7811966">
-              <caret line="158" column="64" selection-start-line="158" selection-start-column="64" selection-end-line="158" selection-end-column="64" />
+            <state vertical-scroll-proportion="0.5623932">
+              <caret line="162" column="122" selection-start-line="162" selection-start-column="122" selection-end-line="162" selection-end-column="122" />
               <folding />
             </state>
           </provider>
@@ -438,7 +438,13 @@
       <option name="project" value="LOCAL" />
       <updated>1441499487750</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="skilllevel strings">
+      <created>1441500147613</created>
+      <option name="number" value="00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1441500147613</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -485,7 +491,8 @@
     <MESSAGE value="test" />
     <MESSAGE value="undid test" />
     <MESSAGE value="gigantic commit with all the marker code and ajax" />
-    <option name="LAST_COMMIT_MESSAGE" value="gigantic commit with all the marker code and ajax" />
+    <MESSAGE value="skilllevel strings" />
+    <option name="LAST_COMMIT_MESSAGE" value="skilllevel strings" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -983,8 +990,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/map.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7811966">
-          <caret line="158" column="64" selection-start-line="158" selection-start-column="64" selection-end-line="158" selection-end-column="64" />
+        <state vertical-scroll-proportion="0.5623932">
+          <caret line="162" column="122" selection-start-line="162" selection-start-column="122" selection-end-line="162" selection-end-column="122" />
           <folding />
         </state>
       </provider>

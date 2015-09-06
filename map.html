@@ -160,7 +160,7 @@ function renderMapPoints(mappoints){
             }
             var user = JSON.parse(xmlhttp.responseText);
             var contentstring = "<h2>"+group.name+"</h2><br/><h4>An event for: "+group.game+"</h4><br/>" +
-                            "<p>Created by "+user.username+". For "+skilllevel+". Expires: "+(group.expirytime || "Never")".</p>";
+                            "<p>Created by "+user.username+". For "+skilllevel+". Expires: "+(group.expirytime || "Never")+".</p>";
             var tooltip = new google.maps.InfoWindow({content: contentstring});
             mark.addListener('click', function(){
                 tooltip.open(map, mark);
