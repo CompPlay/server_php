@@ -144,9 +144,23 @@ function renderMapPoints(mappoints){
             });
             xmlhttp.open("GET", "get_user_data.php?userid=" + group.ownerid, false);
             xmlhttp.send();
+            var skilllevel;
+            switch(group.skill){
+                case 0:
+                case 1:
+                case 2:
+                case 3: skilllevel="beginners"; break;
+                case 4:
+                case 5:
+                case 6: skilllevel="intermediate participants"; break;
+                case 7:
+                case 8:
+                case 9: skilllevel="experienced participants"; break;
+                default: skillevel="anyone and everyone!"; break;
+            }
             var user = JSON.parse(xmlhttp.responseText);
             var contentstring = "<h2>"+group.name+"</h2><br/><h4>An event for: "+group.game+"</h4><br/>" +
-                            "<p>Created by "+user.username+". For "+skilllevel+" particpants. Expires: "+(group.expirytime || "Never")".</p>";
+                            "<p>Created by "+user.username+". For "+skilllevel+". Expires: "+(group.expirytime || "Never")".</p>";
             var tooltip = new google.maps.InfoWindow({content: contentstring});
             mark.addListener('click', function(){
                 tooltip.open(map, mark);
