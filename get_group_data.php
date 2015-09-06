@@ -18,7 +18,7 @@ try{
     // set the PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $groupid = $_GET['groupid'];
-    $select_group = $conn->prepare("SELECT * FROM groups WHERE groupid=:groupid");
+    $select_group = $conn->prepare("SELECT groupid, game, memberlimit, X(location) AS latitude, Y(location) AS longitude, name, skill, privacy, posters, expirytime, timecreated, ownerid FROM groups WHERE groupid = :groupid");
     $select_group->bindParam(":groupid", $groupid);
     $select_group->execute();
     $select_group->setFetchMode(PDO::FETCH_ASSOC);

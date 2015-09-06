@@ -26,6 +26,7 @@
     </script>  	<script src="complay.js"></script>
     <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+    <title>ComPlay: Connecting through Competition</title>
   </head>
   <body>
     <!-- Navigation -->
@@ -49,7 +50,7 @@
                         <a href="#contact">Sign Up</a>
                     </li>
                 </ul>
-                <form class = "navbar-form navbar-right" method="post" action="login.php" >
+                <form id="loginform" class = "navbar-form navbar-right" method="post" action="login.php" >
                     <div class="form-group">
                         <label class="sr-only" for="exampleInputEmail3">Email address</label>
                         <input type="text" class="form-control" name="username" required placeholder="Username">
@@ -194,6 +195,27 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
+    <script>
+        var sessiondata = getSessionData();
+        function getSessionData() {
+            var xmlhttp;
+            if (window.XMLHttpRequest) {
+                // code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp = new XMLHttpRequest();
+            } else {
+                // code for IE6, IE5
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.open("POST", "get_session_data.php", false);
+            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.send();
+            var $_SESSION = JSON.parse(xmlhttp.responseText);
+            if($_SESSION.hasOwnProperty("loggedin") && $_SESSION.loggedin === true) {
+                window.location = "map.html";
+            }
+            return $_SESSION;
+        }
+    </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="../../dist/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->

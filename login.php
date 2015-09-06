@@ -27,13 +27,15 @@ try {
             $_SESSION['username'] = $login_username;
             $_SESSION['name'] = $results[0]['name'];
             $_SESSION['id'] = $results[0]['userid'];
-            header("Location: map.html");
+            header("Location: signinsuccess.html");
             die();
         } else {
-            echo "Incorrect username or password.";
+            header("Location: incorrect_user_pass.html");
+            die();
         }
     } else {
-        echo "Incorrect username or password.";
+        header("Location: incorrect_user_pass.html");
+        die();
     }
 } catch(PDOException $e) {
     header("Location: error.html");

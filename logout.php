@@ -12,6 +12,6 @@ $_SESSION['name'] = null;
 $_SESSION['id'] = null;
 session_unset();
 session_destroy();
-header("Location: index.html");
+header("Location: signout.html");
 die();
 ?>
