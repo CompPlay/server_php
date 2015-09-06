@@ -93,6 +93,7 @@ try{
     $get_group_locations->execute();
     $get_group_locations->setFetchMode(PDO::FETCH_ASSOC);
     $results = $get_group_locations->fetchAll();
+    error_log(count($results));
     foreach($results as $row){
         $mappoints[] = new MapDataPoint("group", $row['X(location)'], $row['Y(location)'], $row['groupid']);
     }
